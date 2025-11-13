@@ -27,7 +27,9 @@
         "LOG_DESTINATION": "${user_config.log_destination}",
         "MAX_SCAN_ITEMS": "${user_config.max_scan_items}",
         "MAX_RETURN_FILE_SIZE": "${user_config.max_return_file_size}",
-        "MAX_READ_FILE_SIZE": "${user_config.max_read_file_size}"
+        "MAX_READ_FILE_SIZE": "${user_config.max_read_file_size}",
+        "SNAPSHOT_FOLDER_NAME": "${user_config.snapshot_folder_name}",
+        "INCLUDE_SNAPSHOT_ROOT": "${user_config.include_snapshot_root}"
       }
     }
   },
@@ -72,6 +74,20 @@
       "title": "Max Read File Size",
       "description": "The maximum size of a file to read by the server.",
       "default": 20048576,
+      "required": false
+    },
+    "snapshot_folder_name": {
+      "type": "text",
+      "title": "Snapshot Folder Name",
+      "description": "Name of the hidden folder that stores snapshots (set empty to disable).",
+      "default": ".snapshot",
+      "required": false
+    },
+    "include_snapshot_root": {
+      "type": "boolean",
+      "title": "Show Snapshot Folder",
+      "description": "Whether to show the snapshot folder in folder listings.",
+      "default": false,
       "required": false
     }
   }

@@ -2,7 +2,12 @@
 import logging
 import os
 import sys
-from dotenv import load_dotenv
+
+try:
+    from dotenv import load_dotenv
+except ModuleNotFoundError:  # pragma: no cover - optional dependency
+    def load_dotenv(*args, **kwargs):
+        return None
 
 class Config:
     """
@@ -30,6 +35,9 @@ class Config:
         self.ignore_files_exp: str = ""
         # Expression to ignore certain folders by a name
         self.ignore_folders_exp: str = ""
+        # Snapshot directory support (e.g., Nasuni .snapshot trees)
+        self.snapshot_folder_name: str = ".snapshot"
+        self.include_snapshot_root: bool = False
 
         self._set_values(env_file_path)
 
@@ -57,6 +65,8 @@ class Config:
         """
         possible_command_line_args = {
             "exclude_folders": list[str],
+            "snapshot_folder_name": str,
+            "include_snapshot_root": bool,
         }
         for arg in sys.argv[1:]:
             if arg.startswith("--"):
@@ -79,6 +89,12 @@ class Config:
                         setattr(self, current_key, current_values[0] if current_values else "")
                     elif current_type == int and len(current_values) > 0:
                         setattr(self, current_key, int(current_values[0]) if current_values else 0)
+                    elif current_type == bool:
+                        if len(current_values) == 0:
+                            setattr(self, current_key, True)
+                        else:
+                            value = current_values[0].lower() in ('true', '1', 'yes', 'on')
+                            setattr(self, current_key, value)
 
     def get_log_level(self) -> int:
         """

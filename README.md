@@ -140,6 +140,8 @@ For VS Code, the config file `.vscode/mcp.json` would look like this:
 - MAX_RETURN_FILE_SIZE - Optional. Maximum size of any data the server will return to the client. Default: 1,048,576 bytes (≈1 MB). Items larger than this will not be returned.
 - MAX_READ_FILE_SIZE - Optional. Maximum size of any file the server will read from the SMB share. Default: 20,048,576 bytes (≈20 MB). Files larger than this will not be read. 
 - LOG_DESTINATION - Optional. Where logs are written. Default: empty (no logging). If a valid file path is provided, logs are written to that file; otherwise logs are written to the console.
+- SNAPSHOT_FOLDER_NAME - Optional. Name of the hidden folder that stores snapshot versions (default: `.snapshot`). Set to empty string to disable snapshot support.
+- INCLUDE_SNAPSHOT_ROOT - Optional. Set to `true` if you want the snapshot folder to appear in standard folder listings. Defaults to `false`.
 
 `MAX_RETURN_FILE_SIZE` vs `MAX_READ_FILE_SIZE` - These limits serve different purposes:
 * MAX_READ_FILE_SIZE caps the size of the original file the server will load for processing (e.g., thumbnail generation, text extraction).
@@ -158,29 +160,34 @@ cat.png is 2,048 KB. An AI agent calls image_file_contents with thumb_width=512 
 
 All paths are relative to the configured root (`FILE_SYSTEM_PATH`) and use / as the separator.
 
-1. **folder_contents(path: str = "") -> FolderContents**
+1. **folder_contents(path: str = "", snapshot_id: str | None = None) -> FolderContents**
 	- **Arguments:** `path` (str, optional)
-	- **Description:** Returns a list of files and subfolders within path. If path is empty, returns the root folder contents.
+	  `snapshot_id` (str, optional)
+	- **Description:** Returns a list of files and subfolders within path. If path is empty, returns the root folder contents. Provide `snapshot_id` to browse a historical snapshot (e.g., entries under `.snapshot`).
 
-2. **file_metadata(path: str) -> FileMetadata**
-	- **Arguments:** `path` (str, required)
-	- **Description:** Returns file metadata (e.g., size, type, whether it’s readable as an image, and whether text can be extracted).
+2. **file_metadata(path: str, snapshot_id: str | None = None) -> FileMetadata**
+	- **Arguments:** `path` (str, required), `snapshot_id` (str, optional)
+	- **Description:** Returns file metadata (e.g., size, type, whether it’s readable as an image, and whether text can be extracted). When `snapshot_id` is provided, metadata is pulled from that snapshot.
 
-3. **file_contents(path: str) -> str**
-	- **Arguments:** `path` (str, required)
+3. **file_contents(path: str, snapshot_id: str | None = None) -> str**
+	- **Arguments:** `path` (str, required), `snapshot_id` (str, optional)
 	- **Description:** Downloads the file and returns its contents as a string. Best for text or text-based formats. Binary files may yield unreadable output; prefer `file_contents_base64()` for binary data or `image_file_contents()` for images.
 
-4. **file_contents_base64(path: str) -> str**
-	- **Arguments:** `path` (str, required)
+4. **file_contents_base64(path: str, snapshot_id: str | None = None) -> str**
+	- **Arguments:** `path` (str, required), `snapshot_id` (str, optional)
 	- **Description:** Downloads the file and returns its contents as a Base64-encoded string. Recommended for binary files.
 
-5. **image_file_contents(path: str, thumb_width: int = 0) -> Image**
-	- **Arguments:** `path` (str, required), `thumb_width` (int, optional)
-	- **Description:** Downloads a PNG or JPEG image and returns an Image object. If `thumb_width > 0`, returns a thumbnail resized to that width while preserving aspect ratio.
+5. **image_file_contents(path: str, thumb_width: int = 0, snapshot_id: str | None = None) -> Image**
+	- **Arguments:** `path` (str, required), `thumb_width` (int, optional), `snapshot_id` (str, optional)
+	- **Description:** Downloads a PNG or JPEG image and returns an Image object. If `thumb_width > 0`, returns a thumbnail resized to that width while preserving aspect ratio. Works with snapshot data when `snapshot_id` is set.
 
-6. **file_file_contents_as_text(path: str) -> str**
-	- **Arguments:** `path` (str, required)
-	- **Description:** Retrieves a file and returns extracted text when supported (PDF, DOCX). For other types, returns the raw content as a string (same behavior as `file_contents()`).
+6. **file_file_contents_as_text(path: str, snapshot_id: str | None = None) -> str**
+	- **Arguments:** `path` (str, required), `snapshot_id` (str, optional)
+	- **Description:** Retrieves a file and returns extracted text when supported (PDF, DOCX). For other types, returns the raw content as a string (same behavior as `file_contents()`). Supports snapshot retrieval via `snapshot_id`.
+
+7. **list_snapshots(path: str = "") -> SnapshotList**
+	- **Arguments:** `path` (str, optional)
+	- **Description:** Lists available snapshot directories (typically under `.snapshot`) and indicates whether the requested path exists within each snapshot.
 
 
 

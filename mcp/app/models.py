@@ -1,5 +1,6 @@
 """ Models for representing file system items."""
 import os
+from datetime import datetime
 from pydantic import BaseModel, Field, computed_field
 
 class Item(BaseModel):
@@ -113,3 +114,20 @@ class FolderContents(BaseModel):
                 self.subfolders.append(item.folder)
             else:
                 self.files.append(item.file)
+
+class SnapshotSummary(BaseModel):
+    """
+    Represents a snapshot directory entry.
+    """
+    id: str = Field(description="Identifier of the snapshot (folder name under the snapshot root)")
+    display_name: str = Field(description="Human readable name for the snapshot")
+    timestamp: datetime | None = Field(default=None, description="Parsed timestamp if available")
+    contains_path: bool = Field(default=False, description="Whether the requested path exists in this snapshot")
+
+class SnapshotList(BaseModel):
+    """
+    Represents snapshots available for a path.
+    """
+    snapshot_folder: str = Field(description="Name of the snapshot folder (e.g., .snapshot)")
+    target_path: str = Field(description="The relative path that was queried")
+    snapshots: list[SnapshotSummary] = Field(default_factory=list, description="Snapshots available for the path")
