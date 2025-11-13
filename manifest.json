@@ -77,7 +77,7 @@
       "required": false
     },
     "snapshot_folder_name": {
-      "type": "text",
+      "type": "string",
       "title": "Snapshot Folder Name",
       "description": "Name of the hidden folder that stores snapshots (set empty to disable).",
       "default": ".snapshot",

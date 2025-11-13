@@ -20,7 +20,7 @@ cp .dxtignore nasuni-mcp-server/
 
 cd nasuni-mcp-server
 
-npx @anthropic-ai/dxt pack
+npx @anthropic-ai/mcpb pack
 
 cd "$ROOT_DIR"
 
